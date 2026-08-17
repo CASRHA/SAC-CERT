@@ -414,14 +414,16 @@
 
     <script>
         // ============================================================
-        //  STATE
+        //  CONFIG & STATE
         // ============================================================
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz0_HI1_SU12FTwhLtEyReV3TFGKLjK5F4i557ELy53Q8VS-rZ-TxjjFOy8UCt1-vA2Tg/exec";
         const registrations = []; // { name, whatsapp, feedback, timestamp }
 
         // ============================================================
         //  DOM REFS
         // ============================================================
         const form           = document.getElementById('certForm');
+        const generateBtn    = document.getElementById('generateBtn');
         const previewSection = document.getElementById('previewSection');
         const nameDisplay    = document.getElementById('nameDisplay');
         const certificateEl  = document.getElementById('certificateContainer');
@@ -434,7 +436,7 @@
         const toast          = document.getElementById('toast');
 
         // ============================================================
-        //  FORM SUBMIT  →  GENERATE CERTIFICATE
+        //  FORM SUBMIT → GENERATE CERTIFICATE & SEND TO GOOGLE SHEET
         // ============================================================
         form.addEventListener('submit', function (e) {
             e.preventDefault();
@@ -449,22 +451,56 @@
                 return;
             }
 
-            // Store registration data
-            registrations.push({
-                name:      name,
-                whatsapp:  whatsapp,
-                feedback:  feedback,
-                timestamp: new Date().toISOString()
+            // Disable button while processing
+            generateBtn.disabled = true;
+            generateBtn.textContent = '⏳ Saving & Generating...';
+
+            // Send payload to Google Sheets Apps Script Web App
+            const payload = {
+                fullName: name,
+                whatsappNumber: whatsapp,
+                feedback: feedback
+            };
+
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                mode: "no-cors", // Bypasses CORS restrictions on Google Apps Script
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                // Success feedback to local log
+                registrations.push({
+                    name:      name,
+                    whatsapp:  whatsapp,
+                    feedback:  feedback,
+                    timestamp: new Date().toISOString()
+                });
+
+                updateAdminCount();
+
+                // Show certificate preview
+                nameDisplay.textContent = name;
+                previewSection.classList.add('visible');
+                previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                showToast('Submitted & Certificate generated for ' + name);
+            })
+            .catch((err) => {
+                console.error('Error submitting to Google Sheet:', err);
+                showToast('Notice: Certificate generated, but failed to log to online sheet.');
+                
+                // Still generate preview even if online logging fails
+                nameDisplay.textContent = name;
+                previewSection.classList.add('visible');
+                previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            })
+            .finally(() => {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '&#127915; Generate Certificate';
             });
-
-            updateAdminCount();
-
-            // Show certificate preview
-            nameDisplay.textContent = name;
-            previewSection.classList.add('visible');
-            previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-            showToast('Certificate generated for ' + name);
         });
 
         // ============================================================
@@ -479,7 +515,7 @@
             certificateEl.style.borderRadius = '0';
 
             html2canvas(certificateEl, {
-                scale: 3,                        // 3× for high resolution
+                scale: 3,                         // 3× for high resolution
                 useCORS: true,
                 backgroundColor: null,
                 logging: false,
@@ -545,7 +581,7 @@
             });
 
             const csv  = header.join(',') + '\n' + rows.join('\n');
-            const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
             const url  = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href     = url;
