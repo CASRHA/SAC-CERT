@@ -1,696 +1,693 @@
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0,
-  maximum-scale=5.0">
-      <title>SAC 2026 — Certificate Generator</title>
-      <script 
-  src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800
-  &display=swap" rel="stylesheet">
-      <style>
-          /* ===== RESET & BASE ===== */
-          *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-          body {
-              font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-              background: #f0f2f5;
-              color: #1a1a2e;
-              min-height: 100vh;
-              -webkit-text-size-adjust: 100%;
-              overflow-x: hidden;
-          }
-
-          /* ===== HEADER ===== */
-          .app-header {
-              background: linear-gradient(135deg, #1a1a6c 0%, #2d2d8c 50%, #c2185b 100%);
-              color: #fff;
-              padding: 24px 20px;
-              text-align: center;
-              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-          }
-          .app-header h1 {
-              font-size: 1.5rem;
-              font-weight: 700;
-              letter-spacing: 0.5px;
-              margin-bottom: 4px;
-          }
-          .app-header p {
-              font-size: 0.88rem;
-              opacity: 0.85;
-              font-weight: 300;
-          }
-
-          /* ===== MAIN LAYOUT ===== */
-          .app-container {
-              max-width: 1000px;
-              margin: 0 auto;
-              padding: 24px 16px;
-          }
-
-          /* ===== FORM CARD ===== */
-          .form-card {
-              background: #fff;
-              border-radius: 16px;
-              box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-              padding: 28px 24px;
-              margin-bottom: 24px;
-              border: 1px solid #e8eaed;
-          }
-          .form-card h2 {
-              font-size: 1.2rem;
-              font-weight: 700;
-              color: #1a1a6c;
-              margin-bottom: 20px;
-              display: flex;
-              align-items: center;
-              gap: 10px;
-          }
-          .form-card h2 .icon { font-size: 1.3rem; }
-
-          .form-grid {
-              display: grid;
-              grid-template-columns: 1fr 1fr;
-              gap: 16px 20px;
-          }
-          .form-group {
-              display: flex;
-              flex-direction: column;
-          }
-          .form-group.full-width { grid-column: 1 / -1; }
-
-          .form-group label {
-              font-size: 0.8rem;
-              font-weight: 600;
-              color: #444;
-              margin-bottom: 6px;
-              text-transform: uppercase;
-              letter-spacing: 0.5px;
-          }
-          .form-group label .required { color: #c2185b; margin-left: 2px; }
-
-          .form-group input,
-          .form-group textarea {
-              font-family: 'Inter', sans-serif;
-              font-size: 16px; /* 16px prevents iOS zoom on focus */
-              padding: 12px 14px;
-              border: 2px solid #e0e0e0;
-              border-radius: 10px;
-              background: #fafafa;
-              color: #1a1a2e;
-              transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-              outline: none;
-              width: 100%;
-          }
-          .form-group input:focus,
-          .form-group textarea:focus {
-              border-color: #1a1a6c;
-              box-shadow: 0 0 0 3px rgba(26, 26, 108, 0.1);
-              background: #fff;
-          }
-          .form-group input::placeholder,
-          .form-group textarea::placeholder { color: #aaa; }
-
-          .form-group textarea {
-              resize: vertical;
-              min-height: 85px;
-          }
-
-          .form-actions {
-              grid-column: 1 / -1;
-              display: flex;
-              gap: 12px;
-              margin-top: 4px;
-          }
-
-          .btn {
-              font-family: 'Inter', sans-serif;
-              font-size: 0.92rem;
-              font-weight: 600;
-              padding: 13px 24px;
-              border: none;
-              border-radius: 10px;
-              cursor: pointer;
-              transition: all 0.2s;
-              display: inline-flex;
-              align-items: center;
-              justify-content: center;
-              gap: 8px;
-              -webkit-tap-highlight-color: transparent;
-          }
-          .btn:active { transform: scale(0.97); }
-
-          .btn-primary {
-              background: linear-gradient(135deg, #1a1a6c, #2d2d8c);
-              color: #fff;
-              box-shadow: 0 4px 14px rgba(26, 26, 108, 0.3);
-          }
-          .btn-primary:hover {
-              box-shadow: 0 6px 20px rgba(26, 26, 108, 0.45);
-              transform: translateY(-1px);
-          }
-
-          .btn-success {
-              background: linear-gradient(135deg, #0d8043, #10a854);
-              color: #fff;
-              box-shadow: 0 4px 14px rgba(13, 128, 67, 0.3);
-          }
-          .btn-success:hover {
-              box-shadow: 0 6px 20px rgba(13, 128, 67, 0.45);
-              transform: translateY(-1px);
-          }
-
-          .btn-secondary {
-              background: #f0f2f5;
-              color: #444;
-              border: 2px solid #ddd;
-          }
-          .btn-secondary:hover {
-              background: #e4e6e9;
-              border-color: #ccc;
-          }
-
-          .btn:disabled {
-              opacity: 0.5;
-              cursor: not-allowed;
-              transform: none !important;
-          }
-
-          /* ===== CERTIFICATE PREVIEW SECTION ===== */
-          .preview-section {
-              display: none;
-              background: #fff;
-              border-radius: 16px;
-              box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-              padding: 28px 24px;
-              border: 1px solid #e8eaed;
-          }
-          .preview-section.visible { display: block; }
-
-          .preview-section h2 {
-              font-size: 1.2rem;
-              font-weight: 700;
-              color: #1a1a6c;
-              margin-bottom: 20px;
-              display: flex;
-              align-items: center;
-              gap: 10px;
-          }
-
-          .preview-wrapper {
-              display: flex;
-              justify-content: center;
-              margin-bottom: 20px;
-              width: 100%;
-              overflow: hidden;
-          }
-
-          /* ===== CERTIFICATE CONTAINER (RESPONSIVE) ===== */
-          .certificate-container {
-              position: relative;
-              width: 100%;
-              max-width: 960px;
-              aspect-ratio: 1536 / 1024;
-              border-radius: 8px;
-              overflow: hidden;
-              box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
-              background: #fff;
-          }
-          .certificate-container img {
-              display: block;
-              width: 100%;
-              height: 100%;
-              object-fit: contain;
-          }
-
-          /* ===== NAME OVERLAY ON CERTIFICATE ===== */
-          .name-overlay {
-              position: absolute;
-              left: 50%;
-              transform: translateX(-50%);
-              top: 42.5%;
-              text-align: center;
-              pointer-events: none;
-              width: 56%;
-          }
-          .name-overlay .name-text {
-              font-family: 'Georgia', 'Times New Roman', serif;
-              font-weight: 400;
-              font-style: italic;
-              color: #1a1a2e;
-              font-size: clamp(12px, 2.9vw, 30px);
-              line-height: 1.3;
-              word-break: break-word;
-              text-shadow: 0 0 3px rgba(255, 255, 255, 0.7);
-              display: block;
-          }
-
-          .preview-actions {
-              display: flex;
-              justify-content: center;
-              gap: 12px;
-              flex-wrap: wrap;
-          }
-
-          /* ===== ADMIN BAR ===== */
-          .admin-bar {
-              max-width: 1000px;
-              margin: 0 auto;
-              padding: 0 16px 24px;
-          }
-          .admin-toggle {
-              font-family: 'Inter', sans-serif;
-              font-size: 0.78rem;
-              color: #aaa;
-              background: none;
-              border: 1px dashed #ddd;
-              border-radius: 8px;
-              padding: 8px 16px;
-              cursor: pointer;
-              transition: color 0.2s, border-color 0.2s;
-          }
-          .admin-toggle:hover { color: #666; border-color: #aaa; }
-
-          .admin-panel {
-              display: none;
-              background: #fff;
-              border-radius: 12px;
-              padding: 16px 20px;
-              margin-top: 12px;
-              border: 1px solid #e8eaed;
-              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-          }
-          .admin-panel.visible {
-              display: flex;
-              align-items: center;
-              gap: 16px;
-              flex-wrap: wrap;
-          }
-          .admin-panel .count { font-size: 0.88rem; color: #666; }
-          .admin-panel .count strong { color: #1a1a6c; }
-
-          /* ===== TOAST / NOTIFICATION ===== */
-          .toast {
-              position: fixed;
-              bottom: 24px;
-              right: 24px;
-              left: 24px;
-              max-width: 400px;
-              margin-left: auto;
-              background: #1a1a6c;
-              color: #fff;
-              padding: 14px 20px;
-              border-radius: 10px;
-              font-size: 0.88rem;
-              font-weight: 500;
-              box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-              opacity: 0;
-              transform: translateY(20px);
-              transition: opacity 0.3s, transform 0.3s;
-              pointer-events: none;
-              z-index: 1000;
-              text-align: center;
-          }
-          .toast.show { opacity: 1; transform: translateY(0); }
-
-          /* ==========================================================
-             RESPONSIVE DESIGN (FOR PHONES & TABLETS)
-             ========================================================== */
-          @media (max-width: 768px) {
-              .app-header { padding: 20px 16px; }
-              .app-header h1 { font-size: 1.3rem; }
-              .app-header p { font-size: 0.82rem; }
-
-              .app-container { padding: 16px 12px; }
-              .form-card { padding: 20px 16px; border-radius: 12px; }
-              .form-grid { grid-template-columns: 1fr; gap: 14px; }
-
-              .form-actions {
-                  flex-direction: column;
-                  gap: 10px;
-              }
-              .form-actions .btn {
-                  width: 100%;
-                  padding: 14px 20px;
-                  font-size: 0.95rem;
-              }
-
-              .preview-section { padding: 20px 14px; border-radius: 12px; }
-
-              .preview-actions {
-                  flex-direction: column;
-                  align-items: stretch;
-              }
-              .preview-actions .btn { width: 100%; padding: 14px 20px; }
-
-              .admin-panel.visible {
-                  flex-direction: column;
-                  align-items: flex-start;
-              }
-          }
-
-          @media (max-width: 480px) {
-              .app-header h1 { font-size: 1.1rem; }
-              .form-card h2, .preview-section h2 { font-size: 1rem; }
-              .name-overlay .name-text {
-                  font-size: clamp(10px, 3.4vw, 22px);
-              }
-          }
-      </style>
-  </head>
-  <body>
-
-      <!-- HEADER -->
-      <header class="app-header">
-          <h1>SAC 2026 Certificate Generator</h1>
-          <p>CASRHA Foundation &mdash; Sharpening the Axe Conference</p>
-      </header>
-
-      <div class="app-container">
-
-          <!-- INPUT FORM -->
-          <section class="form-card">
-              <h2><span class="icon">&#9998;</span> Participant Details</h2>
-              <form id="certForm" class="form-grid" novalidate>
-                  <div class="form-group">
-                      <label for="fullName">Full Name <span class="required">*</span></label>
-                      <input
-                          type="text"
-                          id="fullName"
-                          name="fullName"
-                          placeholder="e.g. Adaeze Okonkwo"
-                          required
-                          autocomplete="name"
-                      >
-                  </div>
-                  <div class="form-group">
-                      <label for="whatsapp">WhatsApp Number <span 
-  class="required">*</span></label>
-                      <input
-                          type="tel"
-                          id="whatsapp"
-                          name="whatsapp"
-                          placeholder="e.g. +234 801 234 5678"
-                          required
-                      >
-                  </div>
-                  <div class="form-group full-width">
-                      <label for="feedback">Conference Feedback <span 
-  class="required">*</span></label>
-                      <textarea
-                          id="feedback"
-                          name="feedback"
-                          placeholder="Share your experience at SAC 2026..."
-                          required
-                      ></textarea>
-                  </div>
-                  <div class="form-actions">
-                      <button type="submit" class="btn btn-primary" id="generateBtn">
-                          &#127915; Generate Certificate
-                      </button>
-                      <button type="reset" class="btn btn-secondary" id="resetBtn">
-                          Clear Form
-                      </button>
-                  </div>
-              </form>
-          </section>
-
-          <!-- CERTIFICATE PREVIEW -->
-          <section class="preview-section" id="previewSection">
-              <h2><span class="icon">&#127942;</span> Certificate Preview</h2>
-              <div class="preview-wrapper">
-                  <div class="certificate-container" id="certificateContainer">
-                      <img src="template.jpg" alt="SAC 2026 Certificate Template" 
-  id="templateImg">
-                      <div class="name-overlay" id="nameOverlay">
-                          <span class="name-text" id="nameDisplay"></span>
-                      </div>
-                  </div>
-              </div>
-              <div class="preview-actions">
-                  <button class="btn btn-success" id="downloadBtn">
-                      &#128190; Download Certificate as Image
-                  </button>
-                  <button class="btn btn-secondary" id="newCertBtn">
-                      &#10133; Generate Another
-                  </button>
-              </div>
-          </section>
-      </div>
-
-      <!-- ADMIN BAR -->
-      <div class="admin-bar">
-          <button class="admin-toggle" id="adminToggle">&#9881; Admin</button>
-          <div class="admin-panel" id="adminPanel">
-              <span class="count">Generated: <strong id="regCount">0</strong>
-  certificate(s)</span>
-              <button class="btn btn-secondary" id="exportCsvBtn" disabled>
-                  &#128203; Export Registration Log (CSV)
-              </button>
-          </div>
-      </div>
-
-      <!-- TOAST NOTIFICATION -->
-      <div class="toast" id="toast"></div>
-
-      <script>
-          // ============================================================
-          //  CONFIG & STATE
-          // ============================================================
-          var WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz0_HI1_SU12FTwhLtEyReV3
-  TFGKLjK5F4i557ELy53Q8VS-rZ-TxjjFOy8UCt1-vA2Tg/exec";
-          var registrations = [];
-
-          // Native template resolution for high-res output
-          var CERT_WIDTH  = 1536;
-          var CERT_HEIGHT = 1024;
-
-          // ============================================================
-          //  DOM REFS
-          // ============================================================
-          var form           = document.getElementById('certForm');
-          var generateBtn    = document.getElementById('generateBtn');
-          var previewSection = document.getElementById('previewSection');
-          var nameDisplay    = document.getElementById('nameDisplay');
-          var certificateEl  = document.getElementById('certificateContainer');
-          var downloadBtn    = document.getElementById('downloadBtn');
-          var newCertBtn     = document.getElementById('newCertBtn');
-          var exportCsvBtn   = document.getElementById('exportCsvBtn');
-          var regCount       = document.getElementById('regCount');
-          var adminToggle    = document.getElementById('adminToggle');
-          var adminPanel     = document.getElementById('adminPanel');
-          var toast          = document.getElementById('toast');
-
-          // ============================================================
-          //  FORM SUBMIT → GOOGLE SHEETS + PREVIEW
-          // ============================================================
-          form.addEventListener('submit', function (e) {
-              e.preventDefault();
-
-              var name     = document.getElementById('fullName').value.trim();
-              var whatsapp = document.getElementById('whatsapp').value.trim();
-              var feedback = document.getElementById('feedback').value.trim();
-
-              if (!name || !whatsapp || !feedback) {
-                  showToast('Please fill in all required fields.');
-                  return;
-              }
-
-              generateBtn.disabled = true;
-              generateBtn.textContent = '⏳ Saving & Generating...';
-
-              var payload = {
-                  fullName: name,
-                  whatsappNumber: whatsapp,
-                  feedback: feedback
-              };
-
-              fetch(WEB_APP_URL, {
-                  method: "POST",
-                  mode: "no-cors",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(payload)
-              })
-              .then(function () {
-                  recordAndDisplay(name, whatsapp, feedback, 'Submitted & Certificate
-  generated!');
-              })
-              .catch(function (err) {
-                  console.error('Error submitting to Google Sheet:', err);
-                  recordAndDisplay(name, whatsapp, feedback, 'Certificate generated (Sheet
-  offline).');
-              })
-              .finally(function () {
-                  generateBtn.disabled = false;
-                  generateBtn.innerHTML = '&#127915; Generate Certificate';
-              });
-          });
-
-          function recordAndDisplay(name, whatsapp, feedback, message) {
-              registrations.push({
-                  name:      name,
-                  whatsapp:  whatsapp,
-                  feedback:  feedback,
-                  timestamp: new Date().toISOString()
-              });
-
-              updateAdminCount();
-
-              nameDisplay.textContent = name;
-              previewSection.classList.add('visible');
-
-              setTimeout(function () {
-                  previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }, 100);
-
-              showToast(message);
-          }
-
-          // ============================================================
-          //  HIGH-RES CERTIFICATE DOWNLOAD (Mobile-Friendly)
-          // ============================================================
-          downloadBtn.addEventListener('click', function () {
-              downloadBtn.disabled = true;
-              downloadBtn.textContent = '⏳ Preparing Download...';
-
-              setTimeout(function () {
-                  captureAndDownload();
-              }, 100);
-          });
-
-          function captureAndDownload() {
-              var origWidth       = certificateEl.style.width;
-              var origHeight      = certificateEl.style.height;
-              var origMaxWidth    = certificateEl.style.maxWidth;
-              var origAspectRatio = certificateEl.style.aspectRatio;
-              var origBorderRadius= certificateEl.style.borderRadius;
-              var origFontSize    = nameDisplay.style.fontSize;
-
-              // Temporarily set to full high-res dimensions so mobile viewport doesn't
-  shrink the output
-              certificateEl.style.width       = CERT_WIDTH + 'px';
-              certificateEl.style.height      = CERT_HEIGHT + 'px';
-              certificateEl.style.maxWidth    = 'none';
-              certificateEl.style.aspectRatio = 'unset';
-              certificateEl.style.borderRadius = '0';
-              nameDisplay.style.fontSize      = '46px';
-
-              html2canvas(certificateEl, {
-                  scale: 1,
-                  useCORS: true,
-                  backgroundColor: null,
-                  logging: false,
-                  width: CERT_WIDTH,
-                  height: CERT_HEIGHT
-              }).then(function (canvas) {
-                  // Restore screen styles
-                  certificateEl.style.width       = origWidth;
-                  certificateEl.style.height      = origHeight;
-                  certificateEl.style.maxWidth    = origMaxWidth;
-                  certificateEl.style.aspectRatio = origAspectRatio;
-                  certificateEl.style.borderRadius = origBorderRadius;
-                  nameDisplay.style.fontSize      = origFontSize;
-
-                  // Trigger download
-                  var safeName = nameDisplay.textContent.replace(/\s+/g, '_');
-                  var link = document.createElement('a');
-                  link.download = 'SAC2026_Certificate_' + safeName + '.png';
-                  link.href = canvas.toDataURL('image/png');
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-
-                  downloadBtn.disabled = false;
-                  downloadBtn.innerHTML = '&#128190; Download Certificate as Image';
-                  showToast('Certificate downloaded!');
-              }).catch(function (err) {
-                  console.error('Download error:', err);
-
-                  // Restore styles on error
-                  certificateEl.style.width       = origWidth;
-                  certificateEl.style.height      = origHeight;
-                  certificateEl.style.maxWidth    = origMaxWidth;
-                  certificateEl.style.aspectRatio = origAspectRatio;
-                  certificateEl.style.borderRadius = origBorderRadius;
-                  nameDisplay.style.fontSize      = origFontSize;
-
-                  downloadBtn.disabled = false;
-                  downloadBtn.innerHTML = '&#128190; Download Certificate as Image';
-                  showToast('Download failed. Please try again.');
-              });
-          }
-
-          // ============================================================
-          //  RESET FORM FOR NEW CERTIFICATE
-          // ============================================================
-          newCertBtn.addEventListener('click', function () {
-              form.reset();
-              previewSection.classList.remove('visible');
-              document.getElementById('fullName').focus();
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-          });
-
-          // ============================================================
-          //  ADMIN: TOGGLE & EXPORT
-          // ============================================================
-          adminToggle.addEventListener('click', function () {
-              adminPanel.classList.toggle('visible');
-          });
-
-          exportCsvBtn.addEventListener('click', function () {
-              if (registrations.length === 0) {
-                  showToast('No registrations to export.');
-                  return;
-              }
-
-              var header = ['Full Name', 'WhatsApp Number', 'Feedback', 'Timestamp'];
-              var rows = registrations.map(function (r) {
-                  return [
-                      csvEscape(r.name),
-                      csvEscape(r.whatsapp),
-                      csvEscape(r.feedback),
-                      csvEscape(r.timestamp)
-                  ].join(',');
-              });
-
-              var csv  = header.join(',') + '\n' + rows.join('\n');
-              var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-              var url  = URL.createObjectURL(blob);
-              var link = document.createElement('a');
-              link.href     = url;
-              link.download = 'SAC2026_Registration_Log.csv';
-              link.click();
-              URL.revokeObjectURL(url);
-
-              showToast('CSV exported with ' + registrations.length + ' record(s).');
-          });
-
-          // ============================================================
-          //  HELPERS
-          // ============================================================
-          function csvEscape(val) {
-              if (typeof val !== 'string') val = String(val);
-              if (val.includes(',') || val.includes('"') || val.includes('\n')) {
-                  return '"' + val.replace(/"/g, '""') + '"';
-              }
-              return val;
-          }
-
-          function updateAdminCount() {
-              regCount.textContent = registrations.length;
-              exportCsvBtn.disabled = registrations.length === 0;
-          }
-
-          function showToast(message) {
-              toast.textContent = message;
-              toast.classList.add('show');
-              clearTimeout(showToast._timer);
-              showToast._timer = setTimeout(function () {
-                  toast.classList.remove('show');
-              }, 3000);
-          }
-      </script>
-  </body>
-  </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAC 2026 — Certificate Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f0f2f5;
+            color: #1a1a2e;
+            min-height: 100vh;
+            -webkit-text-size-adjust: 100%;
+            overflow-x: hidden;
+        }
+
+        /* ===== HEADER ===== */
+        .app-header {
+            background: linear-gradient(135deg, #1a1a6c 0%, #2d2d8c 50%, #c2185b 100%);
+            color: #fff;
+            padding: 28px 40px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        .app-header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .app-header p {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            font-weight: 300;
+        }
+
+        /* ===== MAIN LAYOUT ===== */
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        /* ===== FORM CARD ===== */
+        .form-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            padding: 36px 40px;
+            margin-bottom: 32px;
+            border: 1px solid #e8eaed;
+        }
+        .form-card h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a1a6c;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-card h2 .icon { font-size: 1.4rem; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px 28px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group.full-width { grid-column: 1 / -1; }
+
+        .form-group label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+        .form-group label .required { color: #c2185b; margin-left: 2px; }
+
+        .form-group input,
+        .form-group textarea {
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #fafafa;
+            color: #1a1a2e;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            outline: none;
+            width: 100%;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #1a1a6c;
+            box-shadow: 0 0 0 3px rgba(26, 26, 108, 0.1);
+            background: #fff;
+        }
+        .form-group input::placeholder,
+        .form-group textarea::placeholder { color: #aaa; }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .form-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .btn {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 600;
+            padding: 13px 28px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1a1a6c, #2d2d8c);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(26, 26, 108, 0.3);
+        }
+        .btn-primary:hover {
+            box-shadow: 0 6px 20px rgba(26, 26, 108, 0.45);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #0d8043, #10a854);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(13, 128, 67, 0.3);
+        }
+        .btn-success:hover {
+            box-shadow: 0 6px 20px rgba(13, 128, 67, 0.45);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #f0f2f5;
+            color: #444;
+            border: 2px solid #ddd;
+        }
+        .btn-secondary:hover {
+            background: #e4e6e9;
+            border-color: #ccc;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* ===== CERTIFICATE PREVIEW SECTION ===== */
+        .preview-section {
+            display: none;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            padding: 36px 40px;
+            border: 1px solid #e8eaed;
+        }
+        .preview-section.visible { display: block; }
+
+        .preview-section h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a1a6c;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .preview-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        /* ===== CERTIFICATE CONTAINER ===== */
+        .certificate-container {
+            position: relative;
+            width: 100%;
+            max-width: 960px;
+            aspect-ratio: 1536 / 1024;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+            background: #fff;
+        }
+        .certificate-container img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* ===== NAME OVERLAY ON CERTIFICATE ===== */
+        .name-overlay {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 42.5%;
+            text-align: center;
+            pointer-events: none;
+            width: 60%;
+        }
+        .name-overlay .name-text {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-weight: 400;
+            font-style: italic;
+            color: #1a1a2e;
+            font-size: clamp(13px, 2.8vw, 30px);
+            line-height: 1.3;
+            word-break: break-word;
+            text-shadow: 0 0 3px rgba(255, 255, 255, 0.7);
+            display: inline-block;
+        }
+
+        .preview-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* ===== ADMIN BAR ===== */
+        .admin-bar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px 32px;
+        }
+        .admin-toggle {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.78rem;
+            color: #aaa;
+            background: none;
+            border: 1px dashed #ddd;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .admin-toggle:hover { color: #666; border-color: #aaa; }
+
+        .admin-panel {
+            display: none;
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-top: 12px;
+            border: 1px solid #e8eaed;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        .admin-panel.visible {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .admin-panel .count { font-size: 0.88rem; color: #666; }
+        .admin-panel .count strong { color: #1a1a6c; }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: #1a1a6c;
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            z-index: 1000;
+            max-width: 90vw;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .app-header { padding: 22px 20px; }
+            .app-header h1 { font-size: 1.3rem; }
+            .app-header p { font-size: 0.82rem; }
+            .app-container { padding: 20px 16px; }
+            .form-card { padding: 28px 20px; border-radius: 12px; }
+            .form-card h2 { font-size: 1.1rem; margin-bottom: 18px; }
+            .form-grid { grid-template-columns: 1fr; gap: 16px; }
+            .preview-section { padding: 24px 16px; border-radius: 12px; }
+            .preview-section h2 { font-size: 1.1rem; margin-bottom: 16px; }
+            .preview-actions { flex-direction: column; align-items: stretch; }
+            .preview-actions .btn { width: 100%; }
+            .admin-bar { padding: 0 16px 24px; }
+        }
+
+        @media (max-width: 480px) {
+            body { background: #fff; }
+            .app-header { padding: 18px 14px; }
+            .app-header h1 { font-size: 1.1rem; }
+            .app-header p { font-size: 0.75rem; }
+            .app-container { padding: 14px 10px; }
+            .form-card { padding: 20px 14px; margin-bottom: 20px; }
+            .form-group input, .form-group textarea { font-size: 16px; padding: 11px 14px; }
+            .form-actions { flex-direction: column; gap: 10px; }
+            .form-actions .btn { width: 100%; padding: 14px 20px; }
+            .preview-section { padding: 16px 10px; }
+            .name-overlay .name-text { font-size: clamp(11px, 3.2vw, 20px); }
+            .toast { bottom: 16px; right: 16px; left: 16px; text-align: center; }
+            .admin-bar { padding: 0 10px 20px; }
+            .admin-panel.visible { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="app-header">
+        <h1>SAC 2026 Certificate Generator</h1>
+        <p>CASRHA Foundation &mdash; Sharpening the Axe Conference</p>
+    </header>
+
+    <div class="app-container">
+
+        <!-- INPUT FORM -->
+        <section class="form-card">
+            <h2><span class="icon">&#9998;</span> Participant Details</h2>
+            <form id="certForm" class="form-grid" novalidate>
+                <div class="form-group">
+                    <label for="fullName">Full Name <span class="required">*</span></label>
+                    <input
+                        type="text"
+                        id="fullName"
+                        name="fullName"
+                        placeholder="e.g. Adaeze Okonkwo"
+                        required
+                        autocomplete="name"
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="whatsapp">WhatsApp Number <span class="required">*</span></label>
+                    <input
+                        type="tel"
+                        id="whatsapp"
+                        name="whatsapp"
+                        placeholder="e.g. +234 801 234 5678"
+                        required
+                    >
+                </div>
+                <div class="form-group full-width">
+                    <label for="feedback">Conference Feedback <span class="required">*</span></label>
+                    <textarea
+                        id="feedback"
+                        name="feedback"
+                        placeholder="Share your experience at SAC 2026..."
+                        required
+                    ></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="generateBtn">
+                        &#127915; Generate Certificate
+                    </button>
+                    <button type="reset" class="btn btn-secondary" id="resetBtn">
+                        Clear Form
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- CERTIFICATE PREVIEW -->
+        <section class="preview-section" id="previewSection">
+            <h2><span class="icon">&#127942;</span> Certificate Preview</h2>
+            <div class="preview-wrapper">
+                <div class="certificate-container" id="certificateContainer">
+                    <img src="template.jpg" alt="SAC 2026 Certificate Template" id="templateImg" crossorigin="anonymous">
+                    <div class="name-overlay" id="nameOverlay">
+                        <span class="name-text" id="nameDisplay"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="preview-actions">
+                <button class="btn btn-success" id="downloadBtn">
+                    &#128190; Download Certificate as Image
+                </button>
+                <button class="btn btn-secondary" id="newCertBtn">
+                    &#10133; Generate Another
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <!-- ADMIN BAR -->
+    <div class="admin-bar">
+        <button class="admin-toggle" id="adminToggle">&#9881; Admin</button>
+        <div class="admin-panel" id="adminPanel">
+            <span class="count">Generated: <strong id="regCount">0</strong> certificate(s)</span>
+            <button class="btn btn-secondary" id="exportCsvBtn" disabled>
+                &#128203; Export Registration Log (CSV)
+            </button>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ============================================================
+        //  CONFIG & STATE
+        // ============================================================
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz0_HI1_SU12FTwhLtEyReV3TFGKLjK5F4i557ELy53Q8VS-rZ-TxjjFOy8UCt1-vA2Tg/exec";
+        const registrations = [];
+
+        // Internal certificate dimensions (aspect ratio matching template)
+        const CERT_WIDTH  = 1536;
+        const CERT_HEIGHT = 1024;
+
+        // ============================================================
+        //  DOM REFS
+        // ============================================================
+        const form           = document.getElementById('certForm');
+        const generateBtn    = document.getElementById('generateBtn');
+        const previewSection = document.getElementById('previewSection');
+        const nameDisplay    = document.getElementById('nameDisplay');
+        const certificateEl  = document.getElementById('certificateContainer');
+        const templateImg    = document.getElementById('templateImg');
+        const downloadBtn    = document.getElementById('downloadBtn');
+        const newCertBtn     = document.getElementById('newCertBtn');
+        const resetBtn       = document.getElementById('resetBtn');
+        const exportCsvBtn   = document.getElementById('exportCsvBtn');
+        const regCount       = document.getElementById('regCount');
+        const adminToggle    = document.getElementById('adminToggle');
+        const adminPanel     = document.getElementById('adminPanel');
+        const toast          = document.getElementById('toast');
+
+        // ============================================================
+        //  FORM SUBMISSION
+        // ============================================================
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const name     = document.getElementById('fullName').value.trim();
+            const whatsapp = document.getElementById('whatsapp').value.trim();
+            const feedback = document.getElementById('feedback').value.trim();
+
+            if (!name || !whatsapp || !feedback) {
+                showToast('Please fill in all required fields.');
+                return;
+            }
+
+            generateBtn.disabled = true;
+            generateBtn.textContent = '⏳ Saving & Generating...';
+
+            const payload = {
+                fullName: name,
+                whatsappNumber: whatsapp,
+                feedback: feedback
+            };
+
+            // Post as text/plain to avoid CORS preflight blocking in Apps Script
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
+            .then(function () {
+                recordRegistration(name, whatsapp, feedback);
+                showCertificate(name);
+                showToast('Certificate generated for ' + name);
+            })
+            .catch(function (err) {
+                console.error('Submission logging error:', err);
+                recordRegistration(name, whatsapp, feedback);
+                showCertificate(name);
+                showToast('Generated! (Offline log mode)');
+            })
+            .finally(function () {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '&#127915; Generate Certificate';
+            });
+        });
+
+        function recordRegistration(name, whatsapp, feedback) {
+            registrations.push({
+                name:      name,
+                whatsapp:  whatsapp,
+                feedback:  feedback,
+                timestamp: new Date().toISOString()
+            });
+            updateAdminCount();
+        }
+
+        function showCertificate(name) {
+            nameDisplay.textContent = name;
+            previewSection.classList.add('visible');
+
+            setTimeout(function () {
+                previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // ============================================================
+        //  DOWNLOAD CERTIFICATE AS HIGH-RES PNG
+        // ============================================================
+        downloadBtn.addEventListener('click', function () {
+            const name = (nameDisplay.textContent || 'Participant').trim();
+            if (!name) return;
+
+            downloadBtn.disabled = true;
+            downloadBtn.textContent = '⏳ Generating Image...';
+
+            // Attempt direct Canvas generation (instant & crisp)
+            tryDirectCanvasDownload(name).catch(function () {
+                // Fallback to html2canvas if direct image draw is blocked by CORS
+                fallbackHtml2CanvasDownload(name);
+            });
+        });
+
+        // Method 1: Direct Canvas (Fastest, zero layout jitter, pixel-perfect)
+        function tryDirectCanvasDownload(name) {
+            return new Promise(function (resolve, reject) {
+                if (!templateImg.complete || templateImg.naturalWidth === 0) {
+                    return reject('Image not fully loaded');
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width  = CERT_WIDTH;
+                canvas.height = CERT_HEIGHT;
+                const ctx = canvas.getContext('2d');
+
+                try {
+                    // Draw base template
+                    ctx.drawImage(templateImg, 0, 0, CERT_WIDTH, CERT_HEIGHT);
+
+                    // Dynamic font sizing for long names
+                    let fontSize = 48;
+                    if (name.length > 32) fontSize = 34;
+                    else if (name.length > 24) fontSize = 40;
+
+                    ctx.font = 'italic ' + fontSize + 'px "Georgia", "Times New Roman", serif';
+                    ctx.fillStyle = '#1a1a2e';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+
+                    // Position text at ~44.5% vertical height
+                    ctx.fillText(name, CERT_WIDTH / 2, CERT_HEIGHT * 0.445);
+
+                    // Trigger direct download
+                    triggerDownload(canvas.toDataURL('image/png', 1.0), name);
+                    finishDownload();
+                    resolve();
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        }
+
+        // Method 2: html2canvas fallback
+        function fallbackHtml2CanvasDownload(name) {
+            html2canvas(certificateEl, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                logging: false
+            }).then(function (canvas) {
+                triggerDownload(canvas.toDataURL('image/png', 1.0), name);
+                finishDownload();
+            }).catch(function (err) {
+                console.error('html2canvas error:', err);
+                showToast('Could not download. Please check image permissions.');
+                finishDownload();
+            });
+        }
+
+        function triggerDownload(dataUrl, name) {
+            const safeName = name.replace(/\s+/g, '_');
+            const link = document.createElement('a');
+            link.download = 'SAC2026_Certificate_' + safeName + '.png';
+            link.href = dataUrl;
+            link.click();
+            showToast('Certificate downloaded successfully!');
+        }
+
+        function finishDownload() {
+            downloadBtn.disabled = false;
+            downloadBtn.innerHTML = '&#128190; Download Certificate as Image';
+        }
+
+        // ============================================================
+        //  BUTTONS & ADMIN ACTIONS
+        // ============================================================
+        newCertBtn.addEventListener('click', function () {
+            form.reset();
+            nameDisplay.textContent = '';
+            previewSection.classList.remove('visible');
+            document.getElementById('fullName').focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        resetBtn.addEventListener('click', function () {
+            nameDisplay.textContent = '';
+            previewSection.classList.remove('visible');
+        });
+
+        adminToggle.addEventListener('click', function () {
+            adminPanel.classList.toggle('visible');
+        });
+
+        exportCsvBtn.addEventListener('click', function () {
+            if (registrations.length === 0) {
+                showToast('No registrations to export.');
+                return;
+            }
+
+            const header = ['Full Name', 'WhatsApp Number', 'Feedback', 'Timestamp'];
+            const rows = registrations.map(function (r) {
+                return [
+                    csvEscape(r.name),
+                    csvEscape(r.whatsapp),
+                    csvEscape(r.feedback),
+                    csvEscape(r.timestamp)
+                ].join(',');
+            });
+
+            const csv  = header.join(',') + '\n' + rows.join('\n');
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url  = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href     = url;
+            link.download = 'SAC2026_Registration_Log.csv';
+            link.click();
+            URL.revokeObjectURL(url);
+
+            showToast('CSV exported with ' + registrations.length + ' record(s).');
+        });
+
+        // ============================================================
+        //  HELPERS
+        // ============================================================
+        function csvEscape(val) {
+            if (typeof val !== 'string') val = String(val);
+            if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+                return '"' + val.replace(/"/g, '""') + '"';
+            }
+            return val;
+        }
+
+        function updateAdminCount() {
+            regCount.textContent = registrations.length;
+            exportCsvBtn.disabled = registrations.length === 0;
+        }
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(showToast._timer);
+            showToast._timer = setTimeout(function () {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
