@@ -207,7 +207,7 @@
             position: relative;
             width: 100%;
             max-width: 960px;
-            aspect-ratio: 1536 / 1024;
+            aspect-ratio: 2000 / 1414;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
@@ -217,29 +217,34 @@
             display: block;
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: fill;
         }
 
         /* ===== NAME OVERLAY ON CERTIFICATE ===== */
         .name-overlay {
             position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            top: 42.5%;
+            left: 54%;
+            top: 43.8%;
+            transform: translate(-50%, -50%);
             text-align: center;
             pointer-events: none;
             width: 60%;
+            max-width: 60%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: visible;
         }
         .name-overlay .name-text {
             font-family: 'Georgia', 'Times New Roman', serif;
-            font-weight: 400;
+            font-weight: 500;
             font-style: italic;
             color: #1a1a2e;
-            font-size: clamp(13px, 2.8vw, 30px);
-            line-height: 1.3;
-            word-break: break-word;
-            text-shadow: 0 0 3px rgba(255, 255, 255, 0.7);
+            white-space: nowrap;
+            line-height: 1.1;
+            text-shadow: 0 0 4px rgba(255, 255, 255, 0.85);
             display: inline-block;
+            transform-origin: center center;
         }
 
         .preview-actions {
@@ -328,15 +333,14 @@
             .app-header { padding: 18px 14px; }
             .app-header h1 { font-size: 1.1rem; }
             .app-header p { font-size: 0.75rem; }
-            .app-container { padding: 14px 10px; }
+            .app-container { padding: 12px 8px; }
             .form-card { padding: 20px 14px; margin-bottom: 20px; }
             .form-group input, .form-group textarea { font-size: 16px; padding: 11px 14px; }
             .form-actions { flex-direction: column; gap: 10px; }
             .form-actions .btn { width: 100%; padding: 14px 20px; }
-            .preview-section { padding: 16px 10px; }
-            .name-overlay .name-text { font-size: clamp(11px, 3.2vw, 20px); }
+            .preview-section { padding: 16px 8px; }
             .toast { bottom: 16px; right: 16px; left: 16px; text-align: center; }
-            .admin-bar { padding: 0 10px 20px; }
+            .admin-bar { padding: 0 8px 20px; }
             .admin-panel.visible { flex-direction: column; align-items: flex-start; }
         }
     </style>
@@ -440,8 +444,8 @@
         const registrations = [];
 
         // Internal certificate dimensions (aspect ratio matching template)
-        const CERT_WIDTH  = 1536;
-        const CERT_HEIGHT = 1024;
+        const CERT_WIDTH  = 2000;
+        const CERT_HEIGHT = 1414;
 
         // ============================================================
         //  DOM REFS
@@ -460,6 +464,50 @@
         const adminToggle    = document.getElementById('adminToggle');
         const adminPanel     = document.getElementById('adminPanel');
         const toast          = document.getElementById('toast');
+
+        // ============================================================
+        //  DYNAMIC NAME AUTO-FIT FOR RESPONSIVE & MOBILE SCREENS
+        // ============================================================
+        function fitNameText() {
+            const overlay = document.getElementById('nameOverlay');
+            const nameEl = document.getElementById('nameDisplay');
+            const cert = document.getElementById('certificateContainer');
+            if (!overlay || !nameEl || !cert) return;
+            const text = (nameEl.textContent || '').trim();
+            if (!text) return;
+
+            const certWidth = cert.clientWidth;
+            if (certWidth === 0) return;
+
+            // Ideal proportional font size (~3.5% of certificate width, matching 70px on 2000px template)
+            let fontSize = certWidth * 0.035;
+            nameEl.style.fontSize = fontSize + 'px';
+            nameEl.style.transform = 'none';
+
+            const availableWidth = overlay.clientWidth;
+            const minFontSize = Math.max(9, certWidth * 0.016);
+
+            // Iteratively scale down font size until the full text fits on one line
+            while (nameEl.scrollWidth > availableWidth && fontSize > minFontSize) {
+                fontSize -= 0.5;
+                nameEl.style.fontSize = fontSize + 'px';
+            }
+
+            // If text still overflows at minimum font size on very small screens, scale down smoothly
+            if (nameEl.scrollWidth > availableWidth) {
+                const scale = availableWidth / nameEl.scrollWidth;
+                nameEl.style.transform = 'scale(' + Math.max(0.55, scale) + ')';
+            }
+        }
+
+        window.addEventListener('resize', fitNameText);
+        window.addEventListener('orientationchange', function () {
+            setTimeout(fitNameText, 150);
+        });
+        if (window.ResizeObserver) {
+            new ResizeObserver(fitNameText).observe(certificateEl);
+        }
+        templateImg.addEventListener('load', fitNameText);
 
         // ============================================================
         //  FORM SUBMISSION
@@ -523,7 +571,13 @@
             nameDisplay.textContent = name;
             previewSection.classList.add('visible');
 
+            // Auto-fit name smoothly upon display
+            requestAnimationFrame(function () {
+                fitNameText();
+            });
+
             setTimeout(function () {
+                fitNameText();
                 previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
         }
@@ -552,27 +606,35 @@
                     return reject('Image not fully loaded');
                 }
 
+                const W = templateImg.naturalWidth || CERT_WIDTH;
+                const H = templateImg.naturalHeight || CERT_HEIGHT;
+
                 const canvas = document.createElement('canvas');
-                canvas.width  = CERT_WIDTH;
-                canvas.height = CERT_HEIGHT;
+                canvas.width  = W;
+                canvas.height = H;
                 const ctx = canvas.getContext('2d');
 
                 try {
-                    // Draw base template
-                    ctx.drawImage(templateImg, 0, 0, CERT_WIDTH, CERT_HEIGHT);
+                    // Draw base template at native full resolution
+                    ctx.drawImage(templateImg, 0, 0, W, H);
 
-                    // Dynamic font sizing for long names
-                    let fontSize = 48;
-                    if (name.length > 32) fontSize = 34;
-                    else if (name.length > 24) fontSize = 40;
+                    // Dynamic font sizing for long names: scale down smoothly to fit max text width
+                    const maxAllowedWidth = W * 0.60;
+                    let fontSize = Math.round(W * 0.035); // ~70px on 2000px canvas
+                    const minFontSize = 24;
 
-                    ctx.font = 'italic ' + fontSize + 'px "Georgia", "Times New Roman", serif';
+                    ctx.font = 'italic 500 ' + fontSize + 'px "Georgia", "Times New Roman", serif';
+                    while (ctx.measureText(name).width > maxAllowedWidth && fontSize > minFontSize) {
+                        fontSize -= 1;
+                        ctx.font = 'italic 500 ' + fontSize + 'px "Georgia", "Times New Roman", serif';
+                    }
+
                     ctx.fillStyle = '#1a1a2e';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
 
-                    // Position text at ~44.5% vertical height
-                    ctx.fillText(name, CERT_WIDTH / 2, CERT_HEIGHT * 0.445);
+                    // Center text in certificate area
+                    ctx.fillText(name, W * 0.54, H * 0.438);
 
                     // Trigger direct download
                     triggerDownload(canvas.toDataURL('image/png', 1.0), name);
