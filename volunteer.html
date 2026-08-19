@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAC 2026 — Certificate Generator</title>
+    <title>SAC 2026 — Volunteer Certificate of Recognition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
     <style>
         /* ===== RESET & BASE ===== */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,6 +27,7 @@
             padding: 28px 40px;
             text-align: center;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            position: relative;
         }
         .app-header h1 {
             font-size: 1.6rem;
@@ -36,7 +37,7 @@
         }
         .app-header p {
             font-size: 0.9rem;
-            opacity: 0.85;
+            opacity: 0.9;
             font-weight: 300;
         }
         .nav-switch {
@@ -105,8 +106,7 @@
         }
         .form-group label .required { color: #c2185b; margin-left: 2px; }
 
-        .form-group input,
-        .form-group textarea {
+        .form-group input {
             font-family: 'Inter', sans-serif;
             font-size: 16px;
             padding: 12px 16px;
@@ -118,19 +118,12 @@
             outline: none;
             width: 100%;
         }
-        .form-group input:focus,
-        .form-group textarea:focus {
+        .form-group input:focus {
             border-color: #1a1a6c;
             box-shadow: 0 0 0 3px rgba(26, 26, 108, 0.1);
             background: #fff;
         }
-        .form-group input::placeholder,
-        .form-group textarea::placeholder { color: #aaa; }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 90px;
-        }
+        .form-group input::placeholder { color: #aaa; }
 
         .form-actions {
             grid-column: 1 / -1;
@@ -241,7 +234,7 @@
         .name-overlay {
             position: absolute;
             left: 54%;
-            top: 43.8%;
+            top: 40.5%;
             transform: translate(-50%, -50%);
             text-align: center;
             pointer-events: none;
@@ -262,6 +255,35 @@
             text-shadow: 0 0 4px rgba(255, 255, 255, 0.85);
             display: inline-block;
             transform-origin: center center;
+        }
+
+        /* ===== ROLE OVERLAY ON CERTIFICATE ===== */
+        .role-overlay {
+            position: absolute;
+            left: 54%;
+            top: 53.8%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            width: 58%;
+            max-width: 58%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: visible;
+        }
+        .role-overlay .role-text {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-weight: 700;
+            color: #c2185b;
+            white-space: nowrap;
+            line-height: 1.1;
+            padding: 2px 10px;
+            background: #ffffff;
+            border-radius: 4px;
+            display: inline-block;
+            transform-origin: center center;
+            box-shadow: 0 0 2px rgba(255, 255, 255, 0.9);
         }
 
         .preview-actions {
@@ -352,7 +374,7 @@
             .app-header p { font-size: 0.75rem; }
             .app-container { padding: 12px 8px; }
             .form-card { padding: 20px 14px; margin-bottom: 20px; }
-            .form-group input, .form-group textarea { font-size: 16px; padding: 11px 14px; }
+            .form-group input { font-size: 16px; padding: 11px 14px; }
             .form-actions { flex-direction: column; gap: 10px; }
             .form-actions .btn { width: 100%; padding: 14px 20px; }
             .preview-section { padding: 16px 8px; }
@@ -366,50 +388,41 @@
 
     <!-- HEADER -->
     <header class="app-header">
-        <h1>SAC 2026 Certificate Generator</h1>
-        <p>CASRHA Foundation &mdash; Sharpening the Axe Conference</p>
-        <a href="volunteer.html" class="nav-switch">&#127941; Switch to Volunteer Certificate &rarr;</a>
+        <h1>SAC 2026 Volunteer Certificate</h1>
+        <p>Certificate of Recognition for Dedicated Volunteers &amp; Team Members</p>
+        <a href="index.html" class="nav-switch">&larr; Switch to Participant Certificate</a>
     </header>
 
     <div class="app-container">
 
         <!-- INPUT FORM -->
         <section class="form-card">
-            <h2><span class="icon">&#9998;</span> Participant Details</h2>
-            <form id="certForm" class="form-grid" novalidate>
+            <h2><span class="icon">&#9998;</span> Volunteer Details</h2>
+            <form id="volunteerForm" class="form-grid" novalidate>
                 <div class="form-group">
                     <label for="fullName">Full Name <span class="required">*</span></label>
                     <input
                         type="text"
                         id="fullName"
                         name="fullName"
-                        placeholder="e.g. Adaeze Okonkwo"
+                        placeholder="e.g. Emmanuel Bayode"
                         required
                         autocomplete="name"
                     >
                 </div>
                 <div class="form-group">
-                    <label for="whatsapp">WhatsApp Number <span class="required">*</span></label>
+                    <label for="role">Role / Department <span class="required">*</span></label>
                     <input
-                        type="tel"
-                        id="whatsapp"
-                        name="whatsapp"
-                        placeholder="e.g. +234 801 234 5678"
+                        type="text"
+                        id="role"
+                        name="role"
+                        placeholder="e.g. Technical & Media Director"
                         required
                     >
                 </div>
-                <div class="form-group full-width">
-                    <label for="feedback">Conference Feedback <span class="required">*</span></label>
-                    <textarea
-                        id="feedback"
-                        name="feedback"
-                        placeholder="Share your experience at SAC 2026..."
-                        required
-                    ></textarea>
-                </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary" id="generateBtn">
-                        &#127915; Generate Certificate
+                        &#127915; Generate Volunteer Certificate
                     </button>
                     <button type="reset" class="btn btn-secondary" id="resetBtn">
                         Clear Form
@@ -423,9 +436,12 @@
             <h2><span class="icon">&#127942;</span> Certificate Preview</h2>
             <div class="preview-wrapper">
                 <div class="certificate-container" id="certificateContainer">
-                    <img src="template.jpg" alt="SAC 2026 Certificate Template" id="templateImg" crossorigin="anonymous">
+                    <img src="volunteer-template.jpg" alt="SAC 2026 Volunteer Certificate Template" id="templateImg" crossorigin="anonymous">
                     <div class="name-overlay" id="nameOverlay">
                         <span class="name-text" id="nameDisplay"></span>
+                    </div>
+                    <div class="role-overlay" id="roleOverlay">
+                        <span class="role-text" id="roleDisplay"></span>
                     </div>
                 </div>
             </div>
@@ -446,7 +462,7 @@
         <div class="admin-panel" id="adminPanel">
             <span class="count">Generated: <strong id="regCount">0</strong> certificate(s)</span>
             <button class="btn btn-secondary" id="exportCsvBtn" disabled>
-                &#128203; Export Registration Log (CSV)
+                &#128203; Export Volunteer Log (CSV)
             </button>
         </div>
     </div>
@@ -459,19 +475,20 @@
         //  CONFIG & STATE
         // ============================================================
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz0_HI1_SU12FTwhLtEyReV3TFGKLjK5F4i557ELy53Q8VS-rZ-TxjjFOy8UCt1-vA2Tg/exec";
-        const registrations = [];
+        const volunteerRegistrations = [];
 
-        // Internal certificate dimensions (aspect ratio matching template)
+        // Internal certificate dimensions matching template resolution
         const CERT_WIDTH  = 2000;
         const CERT_HEIGHT = 1414;
 
         // ============================================================
         //  DOM REFS
         // ============================================================
-        const form           = document.getElementById('certForm');
+        const form           = document.getElementById('volunteerForm');
         const generateBtn    = document.getElementById('generateBtn');
         const previewSection = document.getElementById('previewSection');
         const nameDisplay    = document.getElementById('nameDisplay');
+        const roleDisplay    = document.getElementById('roleDisplay');
         const certificateEl  = document.getElementById('certificateContainer');
         const templateImg    = document.getElementById('templateImg');
         const downloadBtn    = document.getElementById('downloadBtn');
@@ -484,48 +501,50 @@
         const toast          = document.getElementById('toast');
 
         // ============================================================
-        //  DYNAMIC NAME AUTO-FIT FOR RESPONSIVE & MOBILE SCREENS
+        //  DYNAMIC TEXT AUTO-FIT FOR RESPONSIVE PREVIEW
         // ============================================================
-        function fitNameText() {
-            const overlay = document.getElementById('nameOverlay');
-            const nameEl = document.getElementById('nameDisplay');
+        function fitCertificateTexts() {
+            fitElementText('nameOverlay', 'nameDisplay', 0.033, 0.015);
+            fitElementText('roleOverlay', 'roleDisplay', 0.020, 0.012);
+        }
+
+        function fitElementText(overlayId, textId, idealRatio, minRatio) {
+            const overlay = document.getElementById(overlayId);
+            const textEl = document.getElementById(textId);
             const cert = document.getElementById('certificateContainer');
-            if (!overlay || !nameEl || !cert) return;
-            const text = (nameEl.textContent || '').trim();
+            if (!overlay || !textEl || !cert) return;
+            const text = (textEl.textContent || '').trim();
             if (!text) return;
 
             const certWidth = cert.clientWidth;
             if (certWidth === 0) return;
 
-            // Ideal proportional font size (~3.5% of certificate width, matching 70px on 2000px template)
-            let fontSize = certWidth * 0.035;
-            nameEl.style.fontSize = fontSize + 'px';
-            nameEl.style.transform = 'none';
+            let fontSize = certWidth * idealRatio;
+            textEl.style.fontSize = fontSize + 'px';
+            textEl.style.transform = 'none';
 
             const availableWidth = overlay.clientWidth;
-            const minFontSize = Math.max(9, certWidth * 0.016);
+            const minFontSize = Math.max(8, certWidth * minRatio);
 
-            // Iteratively scale down font size until the full text fits on one line
-            while (nameEl.scrollWidth > availableWidth && fontSize > minFontSize) {
+            while (textEl.scrollWidth > availableWidth && fontSize > minFontSize) {
                 fontSize -= 0.5;
-                nameEl.style.fontSize = fontSize + 'px';
+                textEl.style.fontSize = fontSize + 'px';
             }
 
-            // If text still overflows at minimum font size on very small screens, scale down smoothly
-            if (nameEl.scrollWidth > availableWidth) {
-                const scale = availableWidth / nameEl.scrollWidth;
-                nameEl.style.transform = 'scale(' + Math.max(0.55, scale) + ')';
+            if (textEl.scrollWidth > availableWidth) {
+                const scale = availableWidth / textEl.scrollWidth;
+                textEl.style.transform = 'scale(' + Math.max(0.55, scale) + ')';
             }
         }
 
-        window.addEventListener('resize', fitNameText);
+        window.addEventListener('resize', fitCertificateTexts);
         window.addEventListener('orientationchange', function () {
-            setTimeout(fitNameText, 150);
+            setTimeout(fitCertificateTexts, 150);
         });
         if (window.ResizeObserver) {
-            new ResizeObserver(fitNameText).observe(certificateEl);
+            new ResizeObserver(fitCertificateTexts).observe(certificateEl);
         }
-        templateImg.addEventListener('load', fitNameText);
+        templateImg.addEventListener('load', fitCertificateTexts);
 
         // ============================================================
         //  FORM SUBMISSION
@@ -533,69 +552,60 @@
         form.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            const name     = document.getElementById('fullName').value.trim();
-            const whatsapp = document.getElementById('whatsapp').value.trim();
-            const feedback = document.getElementById('feedback').value.trim();
+            const name = document.getElementById('fullName').value.trim();
+            const role = document.getElementById('role').value.trim();
 
-            if (!name || !whatsapp || !feedback) {
-                showToast('Please fill in all required fields.');
+            if (!name || !role) {
+                showToast('Please fill in both Name and Role.');
                 return;
             }
 
             generateBtn.disabled = true;
-            generateBtn.textContent = '⏳ Saving & Generating...';
+            generateBtn.textContent = '⏳ Generating Certificate...';
 
             const payload = {
                 fullName: name,
-                whatsappNumber: whatsapp,
-                feedback: feedback
+                role: role,
+                type: 'volunteer'
             };
 
-            // Post as text/plain to avoid CORS preflight blocking in Apps Script
+            // Optional background log to Apps Script
             fetch(WEB_APP_URL, {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify(payload)
-            })
-            .then(function () {
-                recordRegistration(name, whatsapp, feedback);
-                showCertificate(name);
-                showToast('Certificate generated for ' + name);
-            })
-            .catch(function (err) {
-                console.error('Submission logging error:', err);
-                recordRegistration(name, whatsapp, feedback);
-                showCertificate(name);
-                showToast('Generated! (Offline log mode)');
-            })
-            .finally(function () {
+            }).catch(function (err) {
+                console.warn('Apps Script log note:', err);
+            }).finally(function () {
+                recordRegistration(name, role);
+                showCertificate(name, role);
+                showToast('Volunteer Certificate generated for ' + name);
                 generateBtn.disabled = false;
-                generateBtn.innerHTML = '&#127915; Generate Certificate';
+                generateBtn.innerHTML = '&#127915; Generate Volunteer Certificate';
             });
         });
 
-        function recordRegistration(name, whatsapp, feedback) {
-            registrations.push({
+        function recordRegistration(name, role) {
+            volunteerRegistrations.push({
                 name:      name,
-                whatsapp:  whatsapp,
-                feedback:  feedback,
+                role:      role,
                 timestamp: new Date().toISOString()
             });
             updateAdminCount();
         }
 
-        function showCertificate(name) {
+        function showCertificate(name, role) {
             nameDisplay.textContent = name;
+            roleDisplay.textContent = role;
             previewSection.classList.add('visible');
 
-            // Auto-fit name smoothly upon display
             requestAnimationFrame(function () {
-                fitNameText();
+                fitCertificateTexts();
             });
 
             setTimeout(function () {
-                fitNameText();
+                fitCertificateTexts();
                 previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
         }
@@ -604,21 +614,20 @@
         //  DOWNLOAD CERTIFICATE AS HIGH-RES PNG
         // ============================================================
         downloadBtn.addEventListener('click', function () {
-            const name = (nameDisplay.textContent || 'Participant').trim();
+            const name = (nameDisplay.textContent || 'Volunteer').trim();
+            const role = (roleDisplay.textContent || 'Volunteer').trim();
             if (!name) return;
 
             downloadBtn.disabled = true;
             downloadBtn.textContent = '⏳ Generating Image...';
 
-            // Attempt direct Canvas generation (instant & crisp)
-            tryDirectCanvasDownload(name).catch(function () {
-                // Fallback to html2canvas if direct image draw is blocked by CORS
+            tryDirectCanvasDownload(name, role).catch(function () {
                 fallbackHtml2CanvasDownload(name);
             });
         });
 
-        // Method 1: Direct Canvas (Fastest, zero layout jitter, pixel-perfect)
-        function tryDirectCanvasDownload(name) {
+        // Method 1: Direct Canvas (Fastest, zero jitter, pixel-perfect)
+        function tryDirectCanvasDownload(name, role) {
             return new Promise(function (resolve, reject) {
                 if (!templateImg.complete || templateImg.naturalWidth === 0) {
                     return reject('Image not fully loaded');
@@ -633,28 +642,49 @@
                 const ctx = canvas.getContext('2d');
 
                 try {
-                    // Draw base template at native full resolution
+                    // Draw base template
                     ctx.drawImage(templateImg, 0, 0, W, H);
 
-                    // Dynamic font sizing for long names: scale down smoothly to fit max text width
-                    const maxAllowedWidth = W * 0.60;
-                    let fontSize = Math.round(W * 0.035); // ~70px on 2000px canvas
-                    const minFontSize = 24;
+                    // 1. Draw Participant Name (italic serif)
+                    const maxNameWidth = W * 0.60;
+                    let fontNameSize = Math.round(W * 0.033); // ~66px on 2000px
+                    const minNameFontSize = 24;
 
-                    ctx.font = 'italic 500 ' + fontSize + 'px "Georgia", "Times New Roman", serif';
-                    while (ctx.measureText(name).width > maxAllowedWidth && fontSize > minFontSize) {
-                        fontSize -= 1;
-                        ctx.font = 'italic 500 ' + fontSize + 'px "Georgia", "Times New Roman", serif';
+                    ctx.font = 'italic 500 ' + fontNameSize + 'px "Georgia", "Times New Roman", serif';
+                    while (ctx.measureText(name).width > maxNameWidth && fontNameSize > minNameFontSize) {
+                        fontNameSize -= 1;
+                        ctx.font = 'italic 500 ' + fontNameSize + 'px "Georgia", "Times New Roman", serif';
                     }
 
                     ctx.fillStyle = '#1a1a2e';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
+                    ctx.fillText(name, W * 0.54, H * 0.405);
 
-                    // Center text in certificate area
-                    ctx.fillText(name, W * 0.54, H * 0.438);
+                    // 2. Draw Volunteer Role (bold serif / sans with background patch over dotted line)
+                    const maxRoleWidth = W * 0.56;
+                    let fontRoleSize = Math.round(W * 0.019); // ~38px on 2000px
+                    const minRoleFontSize = 18;
 
-                    // Trigger direct download
+                    ctx.font = 'bold ' + fontRoleSize + 'px "Georgia", "Times New Roman", serif';
+                    while (ctx.measureText(role).width > maxRoleWidth && fontRoleSize > minRoleFontSize) {
+                        fontRoleSize -= 1;
+                        ctx.font = 'bold ' + fontRoleSize + 'px "Georgia", "Times New Roman", serif';
+                    }
+
+                    const roleWidth = ctx.measureText(role).width;
+                    const roleX = W * 0.54;
+                    const roleY = H * 0.538;
+
+                    // Clean white backing behind text over dotted line
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(roleX - roleWidth / 2 - 16, roleY - fontRoleSize * 0.65, roleWidth + 32, fontRoleSize * 1.3);
+
+                    // Role text
+                    ctx.fillStyle = '#c2185b';
+                    ctx.fillText(role, roleX, roleY);
+
+                    // Download
                     triggerDownload(canvas.toDataURL('image/png', 1.0), name);
                     finishDownload();
                     resolve();
@@ -685,10 +715,10 @@
         function triggerDownload(dataUrl, name) {
             const safeName = name.replace(/\s+/g, '_');
             const link = document.createElement('a');
-            link.download = 'SAC2026_Certificate_' + safeName + '.png';
+            link.download = 'SAC2026_Volunteer_Certificate_' + safeName + '.png';
             link.href = dataUrl;
             link.click();
-            showToast('Certificate downloaded successfully!');
+            showToast('Volunteer Certificate downloaded successfully!');
         }
 
         function finishDownload() {
@@ -702,6 +732,7 @@
         newCertBtn.addEventListener('click', function () {
             form.reset();
             nameDisplay.textContent = '';
+            roleDisplay.textContent = '';
             previewSection.classList.remove('visible');
             document.getElementById('fullName').focus();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -709,6 +740,7 @@
 
         resetBtn.addEventListener('click', function () {
             nameDisplay.textContent = '';
+            roleDisplay.textContent = '';
             previewSection.classList.remove('visible');
         });
 
@@ -717,17 +749,16 @@
         });
 
         exportCsvBtn.addEventListener('click', function () {
-            if (registrations.length === 0) {
-                showToast('No registrations to export.');
+            if (volunteerRegistrations.length === 0) {
+                showToast('No volunteer registrations to export.');
                 return;
             }
 
-            const header = ['Full Name', 'WhatsApp Number', 'Feedback', 'Timestamp'];
-            const rows = registrations.map(function (r) {
+            const header = ['Full Name', 'Role', 'Timestamp'];
+            const rows = volunteerRegistrations.map(function (r) {
                 return [
                     csvEscape(r.name),
-                    csvEscape(r.whatsapp),
-                    csvEscape(r.feedback),
+                    csvEscape(r.role),
                     csvEscape(r.timestamp)
                 ].join(',');
             });
@@ -737,16 +768,13 @@
             const url  = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href     = url;
-            link.download = 'SAC2026_Registration_Log.csv';
+            link.download = 'SAC2026_Volunteer_Certificates_Log.csv';
             link.click();
             URL.revokeObjectURL(url);
 
-            showToast('CSV exported with ' + registrations.length + ' record(s).');
+            showToast('CSV exported with ' + volunteerRegistrations.length + ' record(s).');
         });
 
-        // ============================================================
-        //  HELPERS
-        // ============================================================
         function csvEscape(val) {
             if (typeof val !== 'string') val = String(val);
             if (val.includes(',') || val.includes('"') || val.includes('\n')) {
@@ -756,8 +784,8 @@
         }
 
         function updateAdminCount() {
-            regCount.textContent = registrations.length;
-            exportCsvBtn.disabled = registrations.length === 0;
+            regCount.textContent = volunteerRegistrations.length;
+            exportCsvBtn.disabled = volunteerRegistrations.length === 0;
         }
 
         function showToast(message) {
