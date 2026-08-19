@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAC 2026 — Team Volunteer Certificate</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f0f2f5;
+            color: #1a1a2e;
+            min-height: 100vh;
+            -webkit-text-size-adjust: 100%;
+            overflow-x: hidden;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, #1a1a6c 0%, #2d2d8c 50%, #c2185b 100%);
+            color: #fff;
+            padding: 26px 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        .app-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .app-header p {
+            font-size: 0.88rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        .nav-links {
+            margin-top: 12px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .nav-switch {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 5px 14px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .nav-switch:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .app-container {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        .form-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            padding: 30px 24px;
+            margin-bottom: 24px;
+            border: 1px solid #e8eaed;
+        }
+        .form-card h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a1a6c;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group.full-width { grid-column: 1 / -1; }
+
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group label .required { color: #c2185b; margin-left: 2px; }
+
+        .form-group input {
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #fafafa;
+            color: #1a1a2e;
+            transition: all 0.2s;
+            outline: none;
+            width: 100%;
+        }
+        .form-group input:focus {
+            border-color: #1a1a6c;
+            box-shadow: 0 0 0 3px rgba(26, 26, 108, 0.1);
+            background: #fff;
+        }
+        .form-group input.code-input {
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+        }
+
+        .code-hint {
+            font-size: 0.75rem;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        .dept-preview-badge {
+            display: none;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #f0f7ff;
+            border: 1px solid #cce3ff;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            color: #0056b3;
+            font-weight: 600;
+        }
+        .dept-preview-badge.show { display: block; }
+
+        .form-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
+        }
+
+        .btn {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 600;
+            padding: 13px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #1a1a6c, #2d2d8c);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(26, 26, 108, 0.3);
+            flex: 1;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 6px 20px rgba(26, 26, 108, 0.45);
+            transform: translateY(-1px);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #0d8043, #10a854);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(13, 128, 67, 0.3);
+        }
+        .btn-pdf {
+            background: linear-gradient(135deg, #b71c1c, #d32f2f);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(183, 28, 28, 0.3);
+        }
+        .btn-secondary {
+            background: #f0f2f5;
+            color: #444;
+            border: 2px solid #ddd;
+        }
+
+        /* ===== CERTIFICATE PREVIEW ===== */
+        .preview-section {
+            display: none;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            padding: 24px 16px;
+            border: 1px solid #e8eaed;
+        }
+        .preview-section.visible { display: block; }
+        .preview-section h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a1a6c;
+            margin-bottom: 18px;
+            text-align: center;
+        }
+
+        .preview-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .certificate-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            aspect-ratio: 2000 / 1414;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+            background: #fff;
+        }
+        .certificate-container img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+        }
+
+        .name-overlay {
+            position: absolute;
+            left: 54%;
+            top: 40.5%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            width: 60%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .name-overlay .name-text {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-weight: 500;
+            font-style: italic;
+            color: #1a1a2e;
+            white-space: nowrap;
+            line-height: 1.1;
+            text-shadow: 0 0 4px rgba(255, 255, 255, 0.85);
+            display: inline-block;
+            transform-origin: center center;
+        }
+
+        .dept-overlay {
+            position: absolute;
+            left: 54%;
+            top: 53.8%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            width: 58%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .dept-overlay .dept-text {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-weight: 700;
+            color: #c2185b;
+            white-space: nowrap;
+            line-height: 1.1;
+            padding: 2px 10px;
+            background: #ffffff;
+            border-radius: 4px;
+            display: inline-block;
+            transform-origin: center center;
+        }
+
+        .preview-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1a1a6c;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            pointer-events: none;
+            z-index: 1000;
+            max-width: 90vw;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; gap: 14px; }
+            .form-actions { flex-direction: column; }
+            .preview-actions { flex-direction: column; }
+            .preview-actions .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <h1>SAC 2026 Volunteer Team Certificate</h1>
+        <p>Enter your Full Name and Assigned Department Code to claim your Certificate of Recognition</p>
+        <div class="nav-links">
+            <a href="index.html" class="nav-switch">&larr; Participant Certificate</a>
+            <a href="volunteer.html" class="nav-switch">Convener Admin Portal &rarr;</a>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <section class="form-card">
+            <h2>&#9998; Team Member Details</h2>
+            <form id="teamCertForm" class="form-grid" novalidate>
+                <div class="form-group">
+                    <label for="fullName">Full Name <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="fullName" 
+                        placeholder="e.g. Adaeze Okonkwo" 
+                        required 
+                        autocomplete="name"
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="deptCode">Assigned Department Code <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="deptCode" 
+                        class="code-input"
+                        placeholder="e.g. SAC-TEC" 
+                        required 
+                        autocomplete="off"
+                    >
+                    <span class="code-hint">Codes: SAC-WRT, SAC-DES, SAC-PUB, SAC-SOC, SAC-TEC, SAC-VID</span>
+                    <div id="deptBadge" class="dept-preview-badge"></div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="generateBtn">
+                        &#127915; Generate Volunteer Certificate
+                    </button>
+                    <button type="reset" class="btn btn-secondary" id="resetBtn">
+                        Clear
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- CERTIFICATE PREVIEW -->
+        <section class="preview-section" id="previewSection">
+            <h2>&#127942; Your Certificate Preview</h2>
+            <div class="preview-wrapper">
+                <div class="certificate-container" id="certificateContainer">
+                    <img src="Volunteer team Certificate.jpg" alt="SAC 2026 Volunteer Team Certificate" id="templateImg" crossorigin="anonymous">
+                    <div class="name-overlay" id="nameOverlay">
+                        <span class="name-text" id="nameDisplay"></span>
+                    </div>
+                    <div class="dept-overlay" id="deptOverlay">
+                        <span class="dept-text" id="deptDisplay"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="preview-actions">
+                <button class="btn btn-success" id="downloadPngBtn">
+                    &#128190; Download High-Res PNG
+                </button>
+                <button class="btn btn-pdf" id="downloadPdfBtn">
+                    &#128196; Download PDF
+                </button>
+                <button class="btn btn-secondary" id="newCertBtn">
+                    &#10133; Generate Another
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Official Department Mapping Table
+        const DEPARTMENT_MAP = {
+            'SAC-WRT': 'SAC 2026 Content Writing Team',
+            'SAC-DES': 'SAC 2026 Graphic Design Team',
+            'SAC-PUB': 'SAC 2026 Publicity Team',
+            'SAC-SOC': 'SAC 2026 Social Media Team',
+            'SAC-TEC': 'SAC 2026 Technical Team',
+            'SAC-VID': 'SAC 2026 Video Editing Team'
+        };
+
+        const CERT_WIDTH  = 2000;
+        const CERT_HEIGHT = 1414;
+
+        const form             = document.getElementById('teamCertForm');
+        const nameInput        = document.getElementById('fullName');
+        const codeInput        = document.getElementById('deptCode');
+        const deptBadge        = document.getElementById('deptBadge');
+        const previewSection   = document.getElementById('previewSection');
+        const nameDisplay      = document.getElementById('nameDisplay');
+        const deptDisplay      = document.getElementById('deptDisplay');
+        const certificateEl    = document.getElementById('certificateContainer');
+        const templateImg      = document.getElementById('templateImg');
+        const downloadPngBtn   = document.getElementById('downloadPngBtn');
+        const downloadPdfBtn   = document.getElementById('downloadPdfBtn');
+        const newCertBtn       = document.getElementById('newCertBtn');
+        const resetBtn         = document.getElementById('resetBtn');
+        const toast            = document.getElementById('toast');
+
+        // Resolve Department Title from Code Prefix
+        function resolveDepartment(code) {
+            if (!code) return null;
+            const cleanCode = code.trim().toUpperCase();
+            
+            // Check direct match or prefix match (e.g. SAC-TEC-001 -> SAC-TEC)
+            for (const [prefix, deptName] of Object.entries(DEPARTMENT_MAP)) {
+                if (cleanCode === prefix || cleanCode.startsWith(prefix)) {
+                    return deptName;
+                }
+            }
+            return null;
+        }
+
+        // Live code input feedback
+        codeInput.addEventListener('input', function () {
+            const resolved = resolveDepartment(this.value);
+            if (resolved) {
+                deptBadge.textContent = '✓ ' + resolved;
+                deptBadge.classList.add('show');
+            } else {
+                deptBadge.classList.remove('show');
+            }
+        });
+
+        // Dynamic Text Auto-Fitting
+        function fitCertificateTexts() {
+            fitElementText('nameOverlay', 'nameDisplay', 0.033, 0.015);
+            fitElementText('deptOverlay', 'deptDisplay', 0.019, 0.012);
+        }
+
+        function fitElementText(overlayId, textId, idealRatio, minRatio) {
+            const overlay = document.getElementById(overlayId);
+            const textEl  = document.getElementById(textId);
+            const cert    = document.getElementById('certificateContainer');
+            if (!overlay || !textEl || !cert) return;
+            const text = (textEl.textContent || '').trim();
+            if (!text) return;
+
+            const certWidth = cert.clientWidth;
+            if (certWidth === 0) return;
+
+            let fontSize = certWidth * idealRatio;
+            textEl.style.fontSize = fontSize + 'px';
+            textEl.style.transform = 'none';
+
+            const availableWidth = overlay.clientWidth;
+            const minFontSize = Math.max(8, certWidth * minRatio);
+
+            while (textEl.scrollWidth > availableWidth && fontSize > minFontSize) {
+                fontSize -= 0.5;
+                textEl.style.fontSize = fontSize + 'px';
+            }
+
+            if (textEl.scrollWidth > availableWidth) {
+                const scale = availableWidth / textEl.scrollWidth;
+                textEl.style.transform = 'scale(' + Math.max(0.55, scale) + ')';
+            }
+        }
+
+        window.addEventListener('resize', fitCertificateTexts);
+        if (window.ResizeObserver) {
+            new ResizeObserver(fitCertificateTexts).observe(certificateEl);
+        }
+        templateImg.addEventListener('load', fitCertificateTexts);
+
+        // Form Submit Handler
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const name = nameInput.value.trim();
+            const code = codeInput.value.trim();
+
+            if (!name) {
+                showToast('Please enter your full name.');
+                nameInput.focus();
+                return;
+            }
+
+            const resolvedDept = resolveDepartment(code);
+            if (!resolvedDept) {
+                showToast('Invalid Department Code. Please enter a valid code (e.g. SAC-TEC).');
+                codeInput.focus();
+                return;
+            }
+
+            nameDisplay.textContent = name;
+            deptDisplay.textContent = resolvedDept;
+            previewSection.classList.add('visible');
+            showToast('Certificate generated successfully!');
+
+            setTimeout(() => {
+                fitCertificateTexts();
+                previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        });
+
+        // High-Res PNG Download
+        downloadPngBtn.addEventListener('click', function () {
+            const name = (nameDisplay.textContent || 'Volunteer').trim();
+            const dept = (deptDisplay.textContent || 'SAC 2026 Team').trim();
+            renderCanvas(name, dept, function (canvas) {
+                const safeName = name.replace(/\s+/g, '_');
+                const link = document.createElement('a');
+                link.download = `SAC2026_Team_Certificate_${safeName}.png`;
+                link.href = canvas.toDataURL('image/png', 1.0);
+                link.click();
+                showToast('PNG downloaded successfully!');
+            });
+        });
+
+        // High-Res PDF Download
+        downloadPdfBtn.addEventListener('click', function () {
+            const name = (nameDisplay.textContent || 'Volunteer').trim();
+            const dept = (deptDisplay.textContent || 'SAC 2026 Team').trim();
+            renderCanvas(name, dept, function (canvas) {
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'px',
+                    format: [CERT_WIDTH, CERT_HEIGHT]
+                });
+                pdf.addImage(imgData, 'JPEG', 0, 0, CERT_WIDTH, CERT_HEIGHT);
+                const safeName = name.replace(/\s+/g, '_');
+                pdf.save(`SAC2026_Team_Certificate_${safeName}.pdf`);
+                showToast('PDF downloaded successfully!');
+            });
+        });
+
+        function renderCanvas(name, dept, callback) {
+            const canvas = document.createElement('canvas');
+            canvas.width  = templateImg.naturalWidth || CERT_WIDTH;
+            canvas.height = templateImg.naturalHeight || CERT_HEIGHT;
+            const ctx = canvas.getContext('2d');
+            const W = canvas.width;
+            const H = canvas.height;
+
+            ctx.drawImage(templateImg, 0, 0, W, H);
+
+            // 1. Draw Name
+            const maxNameWidth = W * 0.60;
+            let fontNameSize = Math.round(W * 0.033);
+            ctx.font = 'italic 500 ' + fontNameSize + 'px "Georgia", "Times New Roman", serif';
+            while (ctx.measureText(name).width > maxNameWidth && fontNameSize > 24) {
+                fontNameSize -= 1;
+                ctx.font = 'italic 500 ' + fontNameSize + 'px "Georgia", "Times New Roman", serif';
+            }
+            ctx.fillStyle = '#1a1a2e';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(name, W * 0.54, H * 0.405);
+
+            // 2. Draw Department
+            const maxDeptWidth = W * 0.56;
+            let fontDeptSize = Math.round(W * 0.019);
+            ctx.font = 'bold ' + fontDeptSize + 'px "Georgia", "Times New Roman", serif';
+            while (ctx.measureText(dept).width > maxDeptWidth && fontDeptSize > 16) {
+                fontDeptSize -= 1;
+                ctx.font = 'bold ' + fontDeptSize + 'px "Georgia", "Times New Roman", serif';
+            }
+            const deptWidth = ctx.measureText(dept).width;
+            const deptX = W * 0.54;
+            const deptY = H * 0.538;
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(deptX - deptWidth / 2 - 16, deptY - fontDeptSize * 0.65, deptWidth + 32, fontDeptSize * 1.3);
+
+            ctx.fillStyle = '#c2185b';
+            ctx.fillText(dept, deptX, deptY);
+
+            callback(canvas);
+        }
+
+        newCertBtn.addEventListener('click', function () {
+            form.reset();
+            deptBadge.classList.remove('show');
+            nameDisplay.textContent = '';
+            deptDisplay.textContent = '';
+            previewSection.classList.remove('visible');
+            nameInput.focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        resetBtn.addEventListener('click', function () {
+            deptBadge.classList.remove('show');
+            previewSection.classList.remove('visible');
+        });
+
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(showToast._timer);
+            showToast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>
